@@ -1,6 +1,7 @@
 import random
 import tkinter as tk
 
+correct_answer = None
 
 def read_periodic_table(file_path):
     periodic_table = []
@@ -54,6 +55,19 @@ def print_periodic_table_to_text(text_widget, table):
 
         text_widget.insert(tk.END, '\n')
 
+def swap_elements_by_index(table, index1, index2):
+    if 0 <= index1 < len(table) and 0 <= index2 < len(table):
+        temp_proton_number = table[index1]['proton_number']
+        table[index1]['proton_number'] = table[index2]['proton_number']
+        table[index2]['proton_number'] = temp_proton_number
+
+        # Sort the table based on proton numbers
+        table.sort(key=lambda x: x['proton_number'])
+
+        # Update row and col values after sorting
+        assign_periodic_table_positions(table)
+    else:
+        print(f"Invalid indices: ({index1}, {index2})")
 
 def setup_periodic_table_cells(frame, table):
     max_row = max(element['row'] for element in table)
@@ -71,6 +85,8 @@ def setup_periodic_table_cells(frame, table):
 def get_correct_answer(periodic_table):
     return random.choice(periodic_table)
 def test_proton_number(sorted_periodic_table, text_widget, entry_widget, attempts_label, current_element=None):
+    global correct_answer  # Declare the global variable
+
     btn_test_proton.config(state=tk.DISABLED)
     btn_test_abbreviation.config(state=tk.DISABLED)
     btn_submit_answer.config(state=tk.NORMAL)
@@ -83,6 +99,9 @@ def test_proton_number(sorted_periodic_table, text_widget, entry_widget, attempt
 
         text_widget.insert(tk.END,
                            f"\nEnter the proton number for the randomly selected element ({current_element}), with mass {mass}: ")
+
+        # Store the correct answer in the global variable
+        correct_answer = proton_number
     else:
         text_widget.insert(tk.END,
                            f"\nEnter the proton number for the randomly selected element ({current_element}): ")
@@ -92,6 +111,8 @@ def test_proton_number(sorted_periodic_table, text_widget, entry_widget, attempt
     return current_element
 
 def test_abbreviation(sorted_periodic_table, text_widget, entry_widget, attempts_label, current_element=None):
+    global correct_answer  # Declare the global variable
+
     btn_test_proton.config(state=tk.DISABLED)
     btn_test_abbreviation.config(state=tk.DISABLED)
     btn_submit_answer.config(state=tk.NORMAL)
@@ -104,6 +125,9 @@ def test_abbreviation(sorted_periodic_table, text_widget, entry_widget, attempts
 
         text_widget.insert(tk.END,
                            f"\nEnter the abbreviation for a randomly selected element with proton number {proton_number}: ")
+
+        # Store the correct answer in the global variable
+        correct_answer = abbreviation
     else:
         abbreviation = current_element[:2]
         proton_number = [element['proton_number'] for element in sorted_periodic_table if
@@ -112,19 +136,25 @@ def test_abbreviation(sorted_periodic_table, text_widget, entry_widget, attempts
         text_widget.insert(tk.END,
                            f"\nEnter the abbreviation for a randomly selected element with proton number {proton_number}: ")
 
+        # Store the correct answer in the global variable
+        correct_answer = abbreviation
+
     entry_widget.delete(0, tk.END)  # Clear the entry box
     attempts_label.config(text="0")  # Reset the attempts label
+
+    # Debugging prints
+    print(f"Answer: {answer}")
+    print(f"Correct Answer: {correct_answer}")
+
     return abbreviation
 
 def submit_answer(periodic_table, text_widget, entry_widget, attempts_label):
+    global correct_answer  # Declare the global variable
+
     answer = entry_widget.get().lower()
 
     # Get the correct answer for comparison
-    correct_element_data = get_correct_answer(periodic_table)
-    correct_element = correct_element_data['element'].lower()
-    correct_proton_number = int(correct_element_data['proton_number'])
-
-    if answer.isdigit() and int(answer) == correct_proton_number:
+    if answer == str(correct_answer):
         text_widget.insert(tk.END, "\nCorrect!")
     else:
         attempts = int(attempts_label.cget("text")) + 1
@@ -135,27 +165,13 @@ def submit_answer(periodic_table, text_widget, entry_widget, attempts_label):
             return  # Add this line to prevent further execution if attempts are less than 3
         else:
             text_widget.insert(tk.END,
-                                f"\nSorry, you've reached the maximum number of attempts. The correct answer is {correct_element} ({correct_proton_number}).")
+                                f"\nSorry, you've reached the maximum number of attempts. The correct answer is {correct_answer}.")
 
     # Clear the entry box
     entry_widget.delete(0, tk.END)
     btn_test_proton.config(state=tk.NORMAL)
     btn_test_abbreviation.config(state=tk.NORMAL)
     btn_submit_answer.config(state=tk.DISABLED)
-
-def swap_elements_by_index(table, index1, index2):
-    if 0 <= index1 < len(table) and 0 <= index2 < len(table):
-        temp_proton_number = table[index1]['proton_number']
-        table[index1]['proton_number'] = table[index2]['proton_number']
-        table[index2]['proton_number'] = temp_proton_number
-
-        # Sort the table based on proton numbers
-        table.sort(key=lambda x: x['proton_number'])
-
-        # Update row and col values after sorting
-        assign_periodic_table_positions(table)
-    else:
-        print(f"Invalid indices: ({index1}, {index2})")
 
 
 def main():
