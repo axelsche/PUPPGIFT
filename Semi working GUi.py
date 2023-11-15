@@ -84,8 +84,11 @@ def setup_periodic_table_cells(frame, table):
 
 def get_correct_answer(periodic_table):
     return random.choice(periodic_table)
+"""error might be that this isn't sotoring the random variable correctly for later answer, as in 
+it cant be called on by the function"""
+
 def test_proton_number(sorted_periodic_table, text_widget, entry_widget, attempts_label, current_element=None):
-    global correct_answer  # Declare the global variable
+    global correct_answer  # Declares the global variable
 
     btn_test_proton.config(state=tk.DISABLED)
     btn_test_abbreviation.config(state=tk.DISABLED)
@@ -101,7 +104,7 @@ def test_proton_number(sorted_periodic_table, text_widget, entry_widget, attempt
                            f"\nEnter the proton number for the randomly selected element ({current_element}), with mass {mass}: ")
 
         # Store the correct answer in the global variable
-        correct_answer = proton_number
+        correct_answer = str(proton_number)
     else:
         text_widget.insert(tk.END,
                            f"\nEnter the proton number for the randomly selected element ({current_element}): ")
@@ -151,10 +154,13 @@ def test_abbreviation(sorted_periodic_table, text_widget, entry_widget, attempts
 def submit_answer(periodic_table, text_widget, entry_widget, attempts_label):
     global correct_answer  # Declare the global variable
 
-    answer = entry_widget.get().lower()
+   #answer = entry_widget.get().lower()
+    #test = answer[0]
+    #if ord(test) >= 48 and ord(test) <= 57:
+     #   answer = str(answer)
 
     # Get the correct answer for comparison
-    if answer == str(correct_answer):
+    if answer == correct_answer:
         text_widget.insert(tk.END, "\nCorrect!")
     else:
         attempts = int(attempts_label.cget("text")) + 1
@@ -165,7 +171,7 @@ def submit_answer(periodic_table, text_widget, entry_widget, attempts_label):
             return  # Add this line to prevent further execution if attempts are less than 3
         else:
             text_widget.insert(tk.END,
-                                f"\nSorry, you've reached the maximum number of attempts. The correct answer is {correct_answer}.")
+                                f"\nSorry, you've reached the maximum number of attempts. The correct answer is {correct_answer}. {answer}")
 
     # Clear the entry box
     entry_widget.delete(0, tk.END)
