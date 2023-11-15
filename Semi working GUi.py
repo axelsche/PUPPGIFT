@@ -154,13 +154,13 @@ def test_abbreviation(sorted_periodic_table, text_widget, entry_widget, attempts
 def submit_answer(periodic_table, text_widget, entry_widget, attempts_label):
     global correct_answer  # Declare the global variable
 
-   #answer = entry_widget.get().lower()
+    answer = entry_widget.get().lower()
     #test = answer[0]
     #if ord(test) >= 48 and ord(test) <= 57:
      #   answer = str(answer)
 
     # Get the correct answer for comparison
-    if answer == correct_answer:
+    if answer == correct_answer.lower():
         text_widget.insert(tk.END, "\nCorrect!")
     else:
         attempts = int(attempts_label.cget("text")) + 1
