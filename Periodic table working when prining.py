@@ -277,18 +277,19 @@ def submit_mass_answer(correct_mass, selected_index, attempts_label, text_widget
                 return  # Add this line to prevent further execution if attempts are less than 3
             else:
                 text_widget.insert(tk.END, f"\nSorry, you've reached the maximum number of attempts. The correct answer is {correct_mass}.")
-    else:
-        text_widget.insert(tk.END, "Invalid selection. Please choose a number between 1 and 3.")
+
+    # Re-enable the "Test Masses" button
+    btn_test_masses.config(state=tk.NORMAL)
 
     # Clear the entry box
     entry_widget.delete(0, tk.END)
     btn_test_proton.config(state=tk.NORMAL)
     btn_test_abbreviation.config(state=tk.NORMAL)
-    btn_test_masses.config(state=tk.NORMAL)  # Enable the mass testing button
     btn_submit_answer.config(state=tk.DISABLED)
 
+
 def test_masses(sorted_periodic_table, text_widget, entry_widget, attempts_label):
-    global correct_mass_answer, answers  # Declare the global variables
+    global correct_mass_answer, correct_answer, answers  # Declare the global variables
 
     random_element = random.choice(sorted_periodic_table)
     current_element = random_element['element']
@@ -302,8 +303,9 @@ def test_masses(sorted_periodic_table, text_widget, entry_widget, attempts_label
     answers = [correct_mass] + incorrect_masses
     random.shuffle(answers)
 
-    # Store the correct answer in the global variable
+    # Store the correct answers in the global variables
     correct_mass_answer = correct_mass
+    correct_answer = str(correct_mass)  # Convert to string to match the comparison in submit_answer
 
     for idx, mass in enumerate(answers, start=1):
         text_widget.insert(tk.END, f"\n{idx}. {mass}")
@@ -311,7 +313,9 @@ def test_masses(sorted_periodic_table, text_widget, entry_widget, attempts_label
     entry_widget.delete(0, tk.END)  # Clear the entry box
     attempts_label.config(text="0")  # Reset the attempts label
 
-    btn_test_masses.config(state=tk.DISABLED)  # Disable the "Test Masses" button
+    btn_test_masses.config(state=tk.NORMAL)  # Disable the "Test Masses" button
+    btn_submit_answer.config(state=tk.NORMAL)  # Enable the "Submit Answer" button
+
 
 
 
