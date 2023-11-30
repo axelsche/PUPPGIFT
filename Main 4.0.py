@@ -135,6 +135,9 @@ class Game:
             return self.play_mass_game()
         elif game_type == '4':
             return self.play_Row_column_game()
+        elif game_type == '5':
+            self.print_periodic_table()
+            return True
         else:
             print("Invalid choice. Please enter a number between 1 and 5.")
             return False
@@ -147,11 +150,12 @@ class Game:
             print("2. Element Name Game")
             print("3. Mass Game")
             print("4. Row and Column Game")
-            print("5. Exit")
+            print("5. Print Periodic Table")
+            print("6. Exit")
 
-            choice = input("Enter your choice (1-5): ")
+            choice = input("Enter your choice (1-6): ")
 
-            if choice == '5':
+            if choice == '6':
                 print("Exiting the program. Goodbye!")
                 break
 
@@ -159,6 +163,22 @@ class Game:
 
             if not play_again:
                 break
+
+    def print_periodic_table(self):
+        with open('sorted_mass_with_atomic_numbers.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            elements = list(reader)
+
+        # Create a 2D list of elements
+        table = [['' for _ in range(18)] for _ in range(10)]
+        for element in elements:
+            row = int(element['row'])
+            col = int(element['col'])
+            table[row - 1][col - 1] = element['Element']
+
+        # Print the table
+        for row in table:
+            print(' '.join([f"{element:<2}" for element in row]))
 
     def play_atomic_number_game(self):
         while True:
