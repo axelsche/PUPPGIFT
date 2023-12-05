@@ -23,6 +23,7 @@ class ElementSorter:
         self.sorted_elements = sorted_elements
         return sorted_elements
 
+
     def swap_elements_by_index(self, index1, index2):
         if 0 <= index1 < len(self.sorted_elements) and 0 <= index2 < len(self.sorted_elements):
             # Swap the positions of two elements based on their indices
@@ -138,8 +139,11 @@ class Game:
         elif game_type == '5':
             self.print_periodic_table()
             return True
+        elif game_type == '6':
+            print("Exiting the program. Goodbye!")
+            return False
         else:
-            print("Invalid choice. Please enter a number between 1 and 5.")
+            print("Invalid choice. Please enter a number between 1 and 6.")
             return False
 
 
@@ -181,6 +185,13 @@ class Game:
             print(' '.join([f"{element:<2}" for element in row]))
 
     def play_atomic_number_game(self):
+        ''':func:`play_atomic_number_game` plays the atomic number game.
+        :return: True if the user wants to play again, False otherwise.
+        :rtype: bool
+        '''
+
+        attempts_per_question = 3
+
         while True:
             self.element_sorter.process_elements(swaps=[
                 (17, 18),
@@ -198,25 +209,46 @@ class Game:
 
             for element in elements:
                 print(f"Element: {element['Element']} - Mass: {element['Mass']}")
-                guess = input("Guess the atomic number: ")
 
-                try:
-                    guess = int(guess)
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-                    continue
+                attempts = 0
+                while attempts < attempts_per_question:
+                    guess = input(f"Attempt {attempts + 1}: Guess the atomic number: ")
 
-                if guess == int(element['AtomicNumber']):
-                    print("Correct!")
-                else:
-                    print("Wrong!")
-                    print("The correct answer is: " + element['AtomicNumber'])
+                    try:
+                        guess = int(guess)
+                    except ValueError:
+                        print(f"Invalid input. Please enter a number.")
+                        continue
+
+                    if guess == int(element['AtomicNumber']):
+                        print("Correct!")
+                        break
+                    else:
+                        attempts += 1
+                        print("Wrong!")
+                        print(f"You have {attempts_per_question - attempts} attempts remaining.")
+                        if attempts == attempts_per_question:
+                            print("Out of attempts. The correct answer is:", element['AtomicNumber'])
+                            break
+
                 print("")
 
                 if not self.play_again():
-                    return False  # Exit the function and return to the main menu
+                    return False
+        # Exit the function and return to the main menu    def get_random_incorrect_mass(self, correct_mass):
+        # Generate 3 random incorrect masses
+        incorrect_masses = [correct_mass]
+        while len(incorrect_masses) < 3:
+            random_mass = round(random.uniform(0.1, 300), 1)
+            if random_mass not in incorrect_masses:
+                incorrect_masses.append(random_mass)
+
+        random.shuffle(incorrect_masses)
+        return incorrect_masses
 
     def play_element_game(self):
+        attempts_per_question = 3
+
         while True:
             self.element_sorter.process_elements(swaps=[
                 (17, 18),
@@ -235,35 +267,29 @@ class Game:
             for element in elements:
                 print(f"Atomic number: {element['AtomicNumber']} - Mass: {element['Mass']}")
 
-                # Input validation loop
-                while True:
-                    guess = input("Guess the element: ")
+                attempts = 0
+                while attempts < attempts_per_question:
+                    guess = input(f"Attempt {attempts + 1}: Guess the element: ")
 
-                    # Check if the input is a one or two-letter string and doesn't contain numbers
                     if (len(guess) == 1 or len(guess) == 2) and guess.isalpha():
-                        break
+                        if guess.lower() == element['Element'].lower():
+                            print("Correct!")
+                            break
+                        else:
+                            print("Wrong!")
+                            print(f"The correct answer is: {element['Element']}")
+                            attempts += 1
+                            print(f"You have {attempts_per_question - attempts} attempts remaining.")
+                            if attempts == attempts_per_question:
+                                print("Out of attempts.")
+                                break
                     else:
                         print("Invalid input. Please enter a one or two-letter string without numbers.")
 
-                if guess.lower() == element['Element'].lower():  # Compare case-insensitive
-                    print("Correct!")
-                else:
-                    print("Wrong!")
-                    print(f"The correct answer is: {element['Element']}")
                 print("")
 
                 if not self.play_again():
-                    return False  # Exit the function and return to the main menu
-    def get_random_incorrect_mass(self, correct_mass):
-        # Generate 3 random incorrect masses
-        incorrect_masses = [correct_mass]
-        while len(incorrect_masses) < 3:
-            random_mass = round(random.uniform(0.1, 300), 1)
-            if random_mass not in incorrect_masses:
-                incorrect_masses.append(random_mass)
-
-        random.shuffle(incorrect_masses)
-        return incorrect_masses
+                    return False
 
     def play_mass_game(self):
         while True:
@@ -282,36 +308,40 @@ class Game:
             random.shuffle(elements)
 
             for element in elements:
-                correct_mass = float(element['Mass'])
-                incorrect_masses = self.get_random_incorrect_mass(correct_mass)
+                masses = [float(element['Mass'])]
+                for i in range(2):
+                    random_element = random.choice(elements)
+                    while random_element == element:
+                        random_element = random.choice(elements)
+                    masses.append(float(random_element['Mass']))
+                random.shuffle(masses)
 
                 print(f"Element: {element['Element']} - Atomic number: {element['AtomicNumber']}")
                 print("Options:")
-                for i, mass_option in enumerate(incorrect_masses):
+                for i, mass_option in enumerate(masses):
                     print(f"{chr(65 + i)}. {mass_option}")
 
-                # Input validation loop
-                while True:
-                    guess_index = input("Select the correct mass (A, B, C): ").upper()
+                guess_index = input("Select the correct mass (A, B, C): ").upper()
 
-                    # Check if the input is a valid option
-                    if guess_index.isalpha() and 'A' <= guess_index <= chr(65 + len(incorrect_masses) - 1):
-                        break
+                if guess_index.isalpha() and 'A' <= guess_index <= chr(65 + len(masses) - 1):
+                    guessed_mass = masses[ord(guess_index) - 65]
+
+                    if guessed_mass == float(element['Mass']):
+                        print("Correct!")
                     else:
-                        print("Invalid input. Please select a valid option (A, B, C).")
-
-                guessed_mass = incorrect_masses[ord(guess_index) - 65]
-
-                if guessed_mass == correct_mass:
-                    print("Correct!")
+                        print("Wrong!")
+                        print(f"The correct answer is: {element['Mass']}")
                 else:
-                    print("Wrong!")
-                    print(f"The correct answer is: {correct_mass}")
+                    print("Invalid input. Please select a valid option (A, B, C).")
+
                 print("")
 
                 if not self.play_again():
                     return False
+
     def play_Row_column_game(self):
+        attempts_per_question = 3
+
         while True:
             self.element_sorter.process_elements(swaps=[
                 (17, 18),
@@ -331,25 +361,34 @@ class Game:
                 correct_row = int(element['row'])
                 correct_column = int(element['col'])
 
-                guess = input(f"Guess the correct row and column for element {element['Element']} (row, col): ")
+                attempts = 0
+                while attempts < attempts_per_question:
+                    guess = input(
+                        f"Attempt {attempts + 1}: Guess the correct row and column for element {element['Element']} (row, col): ")
 
-                try:
-                    # Split the input into row and column values
-                    guessed_row, guessed_column = map(int, guess.split(','))
-                except ValueError:
-                    print("Invalid input. Please enter two numbers separated by a comma.")
-                    continue
+                    try:
+                        guessed_row, guessed_column = map(int, guess.split(','))
 
-                if guessed_row == correct_row and guessed_column == correct_column:
-                    print("Correct!")
-                else:
-                    print("Wrong!")
-                    print(f"The correct answer is: {correct_row}, {correct_column}")
+                        if not (1 <= guessed_row <= 10 and 1 <= guessed_column <= 18):
+                            raise ValueError("Invalid input. Please enter valid row and column numbers.")
+
+                        if guessed_row == correct_row and guessed_column == correct_column:
+                            print("Correct!")
+                            break
+                        else:
+                            attempts += 1
+                            print(f"Wrong! You have {attempts_per_question - attempts} attempts remaining.")
+                            if attempts == attempts_per_question:
+                                print(f"Out of attempts. The correct answer is: {correct_row}, {correct_column}")
+                                break
+
+                    except ValueError as e:
+                        print(e)
+
                 print("")
 
                 if not self.play_again():
                     return False
-
 
     def play_again(self):
         play_again_input = input("Do you want to play again? (y/n): ").lower()
