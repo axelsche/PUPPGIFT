@@ -1,6 +1,7 @@
 import csv
 import random
 
+
 class ElementSorter:
     def __init__(self, input_file, output_file):
         self.input_file = input_file
@@ -8,11 +9,20 @@ class ElementSorter:
         self.sorted_elements = None
 
     def read_elements(self):
+        """
+    :func:`read_elements` reads the elements from the input file.
+    :return: A list of elements.
+    :rtype: list
+    """
         with open(self.input_file, 'r') as file:
             lines = file.readlines()
         return [line.strip() for line in lines]
 
     def sort_elements_by_mass(self, elements):
+        """:func:`sort_elements_by_mass` sorts the elements by mass.
+        :param elements: A list of elements.
+        :type elements: list
+        """
         parsed_elements = [{'Element': element.split()[0], 'Mass': float(element.split()[1])} for element in elements]
         sorted_elements = sorted(parsed_elements, key=lambda x: x['Mass'])
 
@@ -25,6 +35,9 @@ class ElementSorter:
 
 
     def swap_elements_by_index(self, index1, index2):
+        ''':func:`swap_elements_by_index` swaps the positions of two elements based on their indices.
+        :param index1: The index of the first element.
+        :type index1: int'''
         if 0 <= index1 < len(self.sorted_elements) and 0 <= index2 < len(self.sorted_elements):
             # Swap the positions of two elements based on their indices
             temp_element = self.sorted_elements[index1]
@@ -36,6 +49,10 @@ class ElementSorter:
             element['AtomicNumber'] = i + 1
 
     def map_to_mendeleev_layout(self): #make this CSV MAYBE to look nicer
+        ''' :func:`map_to_mendeleev_layout` maps the elements to the Mendeleev layout.
+        :type elements: list
+        :return: A dictionary mapping the atomic number to the row and column of the element.
+        '''
         mandeleev_layout = {
             1: (1, 1), 2: (1, 18),
             3: (2, 1), 4: (2, 2), 5: (2, 13), 6: (2, 14), 7: (2, 15), 8: (2, 16), 9: (2, 17), 10: (2, 18),
@@ -76,6 +93,10 @@ class ElementSorter:
                 element['col'] = col
 
     def write_sorted_elements_to_csv(self):
+        ''':func:`write_sorted_elements_to_csv` writes the sorted elements to a CSV file.
+        :param elements: A list of elements.
+        '''
+
         with open(self.output_file, 'w', newline='') as csvfile:
             fieldnames = ['AtomicNumber', 'Element', 'Mass', 'row', 'col']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -85,6 +106,9 @@ class ElementSorter:
                 writer.writerow(row)
 
     def process_elements(self, swaps=[]):
+        ''' :func:`process_elements` processes the elements.
+        :param elements: A list of elements.
+        :param swaps: A list of tuples containing the indices of the elements to swap.'''
         elements = self.read_elements()
         self.sort_elements_by_mass(elements)
 
@@ -127,27 +151,35 @@ class Game:
         play_again_input = input("Do you want to play again? (yes/no): ").lower()
         return play_again_input == 'yes'
 
-    def play_game(self, game_type):
-        if game_type == '1':
+    def play_game(self):
+        while True:
+            game_type = input("Enter your choice (1-6): ").strip()
+            if game_type.isdigit() and 1 <= int(game_type) <= 6:
+                break
+            print("Invalid choice. Please enter a number between 1 and 6.")
+
+        game_type = int(game_type)
+
+        if game_type == 1:
             return self.play_atomic_number_game()
-        elif game_type == '2':
+        elif game_type == 2:
             return self.play_element_game()
-        elif game_type == '3':
+        elif game_type == 3:
             return self.play_mass_game()
-        elif game_type == '4':
+        elif game_type == 4:
             return self.play_Row_column_game()
-        elif game_type == '5':
+        elif game_type == 5:
             self.print_periodic_table()
             return True
-        elif game_type == '6':
+        elif game_type == 6:
             print("Exiting the program. Goodbye!")
             return False
-        else:
-            print("Invalid choice. Please enter a number between 1 and 6.")
-            return False
-
 
     def main_menu(self):
+        ''' :func:`main_menu` displays the main menu and handles the user's choice.
+        :return: True if the user wants to play again, False otherwise.
+        :rtype: bool
+        '''
         while True:
             print("Main Menu:")
             print("1. Atomic Number Game")
@@ -157,18 +189,39 @@ class Game:
             print("5. Print Periodic Table")
             print("6. Exit")
 
-            choice = input("Enter your choice (1-6): ")
+            # Corrected line
+            user_choice = input("Enter your choice (1-6): ").strip()
 
-            if choice == '6':
+            if user_choice.isdigit() and 1 <= int(user_choice) <= 6:
+                user_choice = int(user_choice)
+            else:
+                print("Invalid choice. Please enter a number between 1 and 6.")
+                continue
+
+            if user_choice == 6:
                 print("Exiting the program. Goodbye!")
-                break
+                return
 
-            play_again = self.play_game(choice)
+            self.play_selected_game(user_choice)
 
-            if not play_again:
-                break
+    def play_selected_game(self, game_type):
+        if game_type == 1:
+            self.play_atomic_number_game()
+        elif game_type == 2:
+            self.play_element_game()
+        elif game_type == 3:
+            self.play_mass_game()
+        elif game_type == 4:
+            self.play_Row_column_game()
+        elif game_type == 5:
+            self.print_periodic_table()
 
     def print_periodic_table(self):
+        ''':func:`print_periodic_table` prints the periodic table.
+        :param elements: A list of elements.
+        :type elements: list
+        '''
+
         with open('sorted_mass_with_atomic_numbers.csv', 'r') as file:
             reader = csv.DictReader(file)
             elements = list(reader)
@@ -235,16 +288,7 @@ class Game:
 
                 if not self.play_again():
                     return False
-        # Exit the function and return to the main menu    def get_random_incorrect_mass(self, correct_mass):
-        # Generate 3 random incorrect masses
-        incorrect_masses = [correct_mass]
-        while len(incorrect_masses) < 3:
-            random_mass = round(random.uniform(0.1, 300), 1)
-            if random_mass not in incorrect_masses:
-                incorrect_masses.append(random_mass)
-
-        random.shuffle(incorrect_masses)
-        return incorrect_masses
+        # Exit the function and return to the main menu
 
     def play_element_game(self):
         attempts_per_question = 3
@@ -291,6 +335,17 @@ class Game:
                 if not self.play_again():
                     return False
 
+    def get_random_incorrect_mass(self, correct_mass):
+        # Generate 3 random incorrect masses
+        incorrect_masses = [correct_mass]
+        while len(incorrect_masses) < 3:
+            random_mass = round(random.uniform(0.1, 300), 1)
+            if random_mass not in incorrect_masses:
+                incorrect_masses.append(random_mass)
+
+        random.shuffle(incorrect_masses)
+        return incorrect_masses
+
     def play_mass_game(self):
         while True:
             self.element_sorter.process_elements(swaps=[
@@ -321,18 +376,21 @@ class Game:
                 for i, mass_option in enumerate(masses):
                     print(f"{chr(65 + i)}. {mass_option}")
 
-                guess_index = input("Select the correct mass (A, B, C): ").upper()
-
-                if guess_index.isalpha() and 'A' <= guess_index <= chr(65 + len(masses) - 1):
-                    guessed_mass = masses[ord(guess_index) - 65]
-
-                    if guessed_mass == float(element['Mass']):
-                        print("Correct!")
+                guess_index = None
+                while guess_index not in range(len(masses)):
+                    guess_index = input("Select the correct mass (A, B, C): ").upper()
+                    if guess_index.isalpha():
+                        guess_index = ord(guess_index) - 65
                     else:
-                        print("Wrong!")
-                        print(f"The correct answer is: {element['Mass']}")
+                        guess_index = None
+
+                guessed_mass = masses[guess_index]
+
+                if guessed_mass == float(element['Mass']):
+                    print("Correct!")
                 else:
-                    print("Invalid input. Please select a valid option (A, B, C).")
+                    print("Wrong!")
+                    print(f"The correct answer is: {element['Mass']}")
 
                 print("")
 
@@ -394,7 +452,6 @@ class Game:
         play_again_input = input("Do you want to play again? (y/n): ").lower()
         if play_again_input == 'y':
             return True  # play the game again
-
         elif play_again_input == 'n':
             self.main_menu()
             print("Returning to the main menu.")
@@ -404,8 +461,7 @@ class Game:
             return self.play_again()
 
 
+
 # Example usage
 game_instance = Game()
 game_instance.main_menu()# Example usage
-
-
