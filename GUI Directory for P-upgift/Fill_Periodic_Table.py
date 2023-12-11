@@ -145,6 +145,7 @@ class PeriodicTableGame:
         """
         self.current_element_index += 1
         self.prompt_element()
+        self.app.update_idletasks()  # Force GUI update
 
     def play_again(self):
         """
