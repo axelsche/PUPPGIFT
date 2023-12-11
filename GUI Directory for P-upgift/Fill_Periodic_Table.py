@@ -20,11 +20,10 @@ class PeriodicTableGame:
         self.app = app
         self.attempts_per_question = 3
 
-        # Load elements from the CSV file
-        self.load_elements_from_csv()
+        # Load elements from the CSV file and shuffle them
+        self.elements = self.load_elements_from_csv()
+        self.shuffled_elements = list(self.elements)
 
-        # Shuffle the elements
-        self.shuffled_elements = list(self.elements)  # Create a copy to avoid modifying the original list
         random.shuffle(self.shuffled_elements)
 
         # Extract unique rows and columns from the elements
@@ -44,17 +43,21 @@ class PeriodicTableGame:
 
     def load_elements_from_csv(self):
         """
-        Load elements from the CSV file.
+        Load elements from the CSV file and shuffle them.
         """
         with open('sorted_mass_with_atomic_numbers.csv', 'r') as file:
             reader = csv.DictReader(file)
-            self.elements = list(reader)
+            elements = list(reader)
+
+        random.shuffle(elements)
+        return elements
 
     def create_widgets(self):
         """
         Create widgets for the GUI.
         """
-        self.label = tk.Label(self.app, text="What is the position of {'Element'} in the periodic table?")
+        self.label = tk.Label(self.app, text=f"What is the position of {self.shuffled_elements[0]['Element']} in the "
+                                             f"periodic table?")
         self.label.grid(row=0, column=0, columnspan=self.grid_size[1], pady=10)
 
         # Create a grid of widgets only where rows and columns are specified
@@ -128,16 +131,22 @@ class PeriodicTableGame:
 
     def remove_button(self, row, col):
         """
-        Remove the button at the specified row and column.
+        Remove the specified button.
 
         Parameters:
             row (int): The row of the button.
             col (int): The column of the button.
         """
+        button = self.get_button_at(row, col)
+        if button:
+            button.grid_forget()
+
+    def get_button_at(self, row, col):
         for widget in self.app.winfo_children():
-            if isinstance(widget, ttk.Button) and widget.grid_info()['row'] == row + 1 and widget.grid_info()[
-                'column'] == col:
-                widget.destroy()
+            if (isinstance(widget, ttk.Button) and widget.grid_info()['row'] == row and widget.grid_info()['column'] ==
+                    col):
+                return widget
+        return None
 
     def next_element(self):
         """
