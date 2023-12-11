@@ -1,8 +1,30 @@
 import tkinter as tk
 import csv
 
+
 class PeriodicTable(tk.Frame):
-    def __init__(self, master=None, elements=None, rows=None, columns=None, **kwargs):#**kwargs collects additional keyword arguments that you can pass when creating the widget
+    """
+    A simple GUI representation of the periodic table using Tkinter.
+
+    Attributes:
+    - master (Tk): The master Tkinter window.
+    - title_label (Label): The label displaying the title.
+    - elements (list): List of tuples containing element information (abbreviation, row, column).
+    - rows (int): Number of rows in the periodic table.
+    - columns (int): Number of columns in the periodic table.
+    """
+
+    def __init__(self, master=None, elements=None, rows=None, columns=None, **kwargs):
+        """
+        Initialize the PeriodicTable instance.
+
+        Parameters:
+        - master (Tk): The master Tkinter window.
+        - elements (list): List of tuples containing element information (abbreviation, row, column).
+        - rows (int): Number of rows in the periodic table.
+        - columns (int): Number of columns in the periodic table.
+        - **kwargs: Additional keyword arguments for the Tkinter frame.
+        """
         super().__init__(master, **kwargs)
         self.master = master
         self.title_label = tk.Label(self, text="Periodic Table")
@@ -14,8 +36,17 @@ class PeriodicTable(tk.Frame):
         self.close_button = tk.Button(self, text="Close", command=self.close_window)
         self.close_button.grid(row=rows, columnspan=columns)
 
-
+    @staticmethod
     def read_elements_from_csv(csv_file):
+        """
+        Read element information from a CSV file.
+
+        Parameters:
+        - csv_file (str): Path to the CSV file.
+
+        Returns:
+        - list: List of tuples containing element information (abbreviation, row, column).
+        """
         elements = []
         with open(csv_file, 'r') as file:
             reader = csv.reader(file)
@@ -29,13 +60,20 @@ class PeriodicTable(tk.Frame):
         return elements
 
     def create_table(self):
+        """
+        Create buttons representing elements and arrange them in a grid.
+        """
         for element_info in self.elements:
             abbreviation, row_num, col_num = element_info
             button = tk.Button(self, text=abbreviation, width=3, height=2)
             button.grid(row=row_num, column=col_num, padx=2, pady=2)
 
     def close_window(self):
+        """
+        Close the Tkinter window.
+        """
         self.master.destroy()
+
 
 if __name__ == "__main__":
     # Specify the path to your CSV file containing element data

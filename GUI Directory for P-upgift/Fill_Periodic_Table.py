@@ -1,11 +1,22 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox, ttk
+from tkinter import messagebox, ttk
 import csv
 import random
 from functools import partial
 
+
 class PeriodicTableGame:
+    """
+    A class representing a game to fill in the periodic table grid.
+    """
+
     def __init__(self, app):
+        """
+        Initialize the game.
+
+        Parameters:
+            app (tk.Tk): The main Tkinter application.
+        """
         self.app = app
         self.attempts_per_question = 3
 
@@ -32,13 +43,18 @@ class PeriodicTableGame:
         self.prompt_element()
 
     def load_elements_from_csv(self):
-        # Load elements from the CSV file
+        """
+        Load elements from the CSV file.
+        """
         with open('sorted_mass_with_atomic_numbers.csv', 'r') as file:
             reader = csv.DictReader(file)
             self.elements = list(reader)
 
     def create_widgets(self):
-        self.label = tk.Label(self.app, text="Guess the Element Positions")
+        """
+        Create widgets for the GUI.
+        """
+        self.label = tk.Label(self.app, text="What is the position of {'Element'} in the periodic table?")
         self.label.grid(row=0, column=0, columnspan=self.grid_size[1], pady=10)
 
         # Create a grid of widgets only where rows and columns are specified
@@ -55,15 +71,28 @@ class PeriodicTableGame:
         self.submit_button.grid(row=self.grid_size[0] + 1, column=self.grid_size[1] // 2, pady=10)
 
     def prompt_element(self):
-        # Prompt the user to fill in the grid for the current element
+        """
+        Prompt the user to fill in the grid for the current element.
+        """
         if self.current_element_index < len(self.shuffled_elements):
             current_element = self.shuffled_elements[self.current_element_index]
-            messagebox.showinfo("Fill the Grid", f"Fill the grid for the element: {current_element['Element']}")
+            element_name = current_element['Element']
+            element_position = f"Row: {current_element['row']}, Column: {current_element['col']}"
+            self.label.config(text=f"Fill the grid for the element: {element_name} ")
+            messagebox.showinfo("Fill the Grid", f"Fill the grid for the element: {element_name}")
         else:
-            messagebox.showinfo("Game Over", "You have completed the game!")
+            self.label.config(text="Game Over: You have completed the game!")
+            messagebox.showinfo("Game Over", "You have completed the game.")
 
     def check_guess(self, row, col, abbreviation):
-        # Check if the guessed row and column are correct for the current element
+        """
+        Check if the guessed row and column are correct for the current element.
+
+        Parameters:
+            row (int): The guessed row.
+            col (int): The guessed column.
+            abbreviation (str): The element abbreviation.
+        """
         if self.current_element_index < len(self.shuffled_elements):
             element = self.shuffled_elements[self.current_element_index]
             correct_row = int(element['row']) - 1
@@ -79,10 +108,18 @@ class PeriodicTableGame:
                 self.remove_button(row, col)
             else:
                 messagebox.showinfo("Incorrect!",
-                                    f"The correct position for {element['Element']} is {correct_row + 1}, {correct_column + 1}.")
+                                    f"The correct position for {element['Element']} is {correct_row + 1}, "
+                                    f"{correct_column + 1}.")
 
     def create_textbox(self, row, col, abbreviation):
-        # Create a new text box at the specified row and column with the correct abbreviation
+        """
+        Create a new text box at the specified row and column with the correct abbreviation.
+
+        Parameters:
+            row (int): The row for the text box.
+            col (int): The column for the text box.
+            abbreviation (str): The element abbreviation.
+        """
         textbox = tk.Text(self.app, height=1, width=3, state=tk.NORMAL)  # Set the state to normal
         textbox.insert(tk.END, abbreviation)
         textbox.grid(row=row + 1, column=col, pady=2)
@@ -90,17 +127,29 @@ class PeriodicTableGame:
         textbox.configure(state=tk.DISABLED)  # Disable the text widget after inserting the text
 
     def remove_button(self, row, col):
-        # Remove the button at the specified row and column
+        """
+        Remove the button at the specified row and column.
+
+        Parameters:
+            row (int): The row of the button.
+            col (int): The column of the button.
+        """
         for widget in self.app.winfo_children():
-            if isinstance(widget, ttk.Button) and widget.grid_info()['row'] == row + 1 and widget.grid_info()['column'] == col:
+            if isinstance(widget, ttk.Button) and widget.grid_info()['row'] == row + 1 and widget.grid_info()[
+                'column'] == col:
                 widget.destroy()
 
     def next_element(self):
-        # Move to the next element
+        """
+        Move to the next element.
+        """
         self.current_element_index += 1
         self.prompt_element()
 
     def play_again(self):
+        """
+        Ask the user if they want to play again.
+        """
         return messagebox.askyesno("Play Again", "Do you want to play again?")
 
 
