@@ -136,7 +136,7 @@ class ElementGame(Game):
                             self.text_box.insert(tk.END, "Correct!\n")
                             break
                         else:
-                            self.text_box.insert(tk.END, f"Wrong! The correct answer is: {element['Element']}\n")
+                            self.text_box.insert(tk.END, f"Wrong! \n")
                             attempts += 1
                             self.text_box.insert(tk.END,
                                                  f"You have {self.attempts_per_question - attempts} attempts "
